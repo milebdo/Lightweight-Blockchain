@@ -1,17 +1,28 @@
+package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"fmt"
+	"math"
 	"math/big"
 )
 
-const targetBits = 24
+var maxNonce = math.MaxInt64
 
+// top {targetBits} bits are zero in the hash
+/// @dev currently set as fixed
+const targetBits = 16
+
+// ProofOfWork - basic type
 type ProofOfWork struct {
 	block  *Block
 	target *big.Int
 }
 
+// NewProofOfWork generation and return data
 func NewProofOfWork(b *Block) *ProofOfWork {
+	// set the initial target = 0x10000000000000000000000000000000000000000000000000000000000
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 
@@ -34,8 +45,7 @@ func (pow *ProofOfWork) prepareData(nonce int) []byte {
 	return data
 }
 
-
-//core Algorithm for PoW
+// Run core Algorithm for PoW
 func (pow *ProofOfWork) Run() (int, []byte) {
 	var hashInt big.Int
 	var hash [32]byte
@@ -43,7 +53,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
 	fmt.Printf("Mining the block containing \"%s\"\n", pow.block.Data)
 
-	for (nonce < maxNonce) {
+	for nonce < maxNonce {
 		data := pow.prepareData(nonce)
 		hash = sha256.Sum256(data)
 		fmt.Printf("\r%x", hash)
@@ -51,8 +61,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
 		if hashInt.Cmp(pow.target) == -1 {
 			break
-		}
-		else {
+		} else {
 			nonce++
 		}
 	}
@@ -61,3 +70,14 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	return nonce, hash[:]
 }
 
+// Validate the pow
+func (pow *ProofOfWork) Validate() bool {
+	var hashInt big.Int
+	data := pow.prepareData(pow.block.Nonce)
+	hash := sha256.Sum256(data)
+	hashInt.SetBytes(hash[:])
+
+	isValid := (hashInt.Cmp(pow.target) == -1)
+
+	return isValid
+}
