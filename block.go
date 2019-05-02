@@ -33,7 +33,7 @@ func NewGenesisBlock() *Block {
 }
 
 /**
- * Serialization for BoltSB
+ * Serialization for BoltDB
  */
 
 // Serialize the block for BoltDB
@@ -49,7 +49,7 @@ func (b *Block) Serialize() []byte {
 	return result.Bytes()
 }
 
-// DeserializeBlock from DB
+// DeserializeBlock from DBx
 func DeserializeBlock(d []byte) *Block {
 	var block Block
 	decoder := gob.NewDecoder(bytes.NewReader(d))
