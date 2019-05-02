@@ -22,7 +22,7 @@ type ProofOfWork struct {
 
 // NewProofOfWork generation and return data
 func NewProofOfWork(b *Block) *ProofOfWork {
-	// set the initial target = 0x10000000000000000000000000000000000000000000000000000000000
+	// set the initial target = 0x10000000...
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 
@@ -34,7 +34,7 @@ func (pow *ProofOfWork) prepareData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			pow.block.PrevBlockHash,
-			pow.block.Data,
+			pow.block.HashTransactions(),
 			IntToHex(pow.block.Timestamp),
 			IntToHex(int64(targetBits)),
 			IntToHex(int64(nonce)),
@@ -51,7 +51,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	var hash [32]byte
 	nonce := 0
 
-	fmt.Printf("Mining the block containing \"%s\"\n", pow.block.Data)
+	fmt.Printf("Mining the block")
 
 	for nonce < maxNonce {
 		data := pow.prepareData(nonce)
