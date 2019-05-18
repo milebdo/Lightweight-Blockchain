@@ -6,7 +6,6 @@ from uuid import uuid4
 from typing import Any, Dict, List, Optional
 
 # for Flask web app
-# from textwrap import dedent
 from flask import Flask, jsonify, request
 
 # for consensus algorithms
@@ -114,7 +113,7 @@ class Blockchain(object):
 
 
 	# methods for consensus
-	def register_node(self, address: str) -> Node:
+	def register_node(self, address: str) -> None:
 		"""
 		Add the new nodes to the node list
 		:param address: <str> Address of node. Eg. 'http://192.168.0.5:5000'
@@ -242,11 +241,11 @@ def full_chain():
 	return jsonify(response), 200
 
 
-@app.route('/nodes/register', method = ['POST'])
+@app.route('/nodes/register', methods = ['POST'])
 def register_nodes():
 	values = request.get_json()
 	nodes = values.get('nodes')
-	if nodes is Node:
+	if nodes is None:
 		return "Error: please supply a valid list of nodes", 400
 
 	for node in nodes:
@@ -254,13 +253,13 @@ def register_nodes():
 
 	response = {
 		'message': "New nodes have been added",
-		'total nodes': list(blockchain.nodes),
+		'total_nodes': list(blockchain.nodes),
 	}
-	return jsonify(request), 201
+	return jsonify(response), 201
 
 
 @app.route('/node/resolve', methods = ['GET'])
-def consensus:
+def consensus():
 	replaced = blockchain.register_node()
 
 	if replaced:
