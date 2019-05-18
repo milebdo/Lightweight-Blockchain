@@ -18,7 +18,7 @@ class Blockchain(object):
 		self.current_transactions = []
 
 		# Create the genesis block
-		self.new_block(previous_hash = 1, proof = 100)
+		self.new_block(previous_hash = '1', proof = 100)
 
 
 	def new_block(self, proof: int, previous_hash: Optional[str]) -> Dict[str, Any]:
@@ -77,31 +77,31 @@ class Blockchain(object):
 
 	
 	def proof_of_work(self, last_proof: int) -> int:
-        """
-        PoW Algorithm:
-         - find p' s.t. hash(pp') begin with four 0s
-        :param last_proof: <int>
-        :return: <int>
-        """
-        proof = 0
-        while self.valid_proof(last_proof, proof) is False:
-            proof += 1
+		"""
+		PoW Algorithm:
+		 - find p' s.t. hash(pp') begin with four 0s
+		:param last_proof: <int>
+		:return: <int>
+		"""
+		proof = 0
+		while self.valid_proof(last_proof, proof) is False:
+			proof += 1
 
-        return proof
+		return proof
 
 
-    @staticmethod
-    def valid_proof(last_proof: int, proof: int) -> bool:
-        """
-        Verify if hash has four 0s at the beginning
-        :param last_proof: <int> Previous Proof
-        :param proof: <int> Current Proof
-        :return: <bool> True if correct, False if not.
-        """
+	@staticmethod
+	def valid_proof(last_proof: int, proof: int) -> bool:
+		"""
+		Verify if hash has four 0s at the beginning
+		:param last_proof: <int> Previous Proof
+		:param proof: <int> Current Proof
+		:return: <bool> True if correct, False if not.
+		"""
 
-        guess = f'{last_proof}{proof}'.encode()
-        guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:4] == "0000"
+		guess = f'{last_proof}{proof}'.encode()
+		guess_hash = hashlib.sha256(guess).hexdigest()
+		return guess_hash[:4] == "0000"
 
 
 
@@ -128,11 +128,11 @@ def mine():
 	# reward:
 	blockchain.new_transaction(
 		sender = "0", 	# 0 - coinbase
-		recipient = node_indentifier
-		amount = 1
+		recipient = node_indentifier,
+		amount = 1,
 	)
 
-	block = blockchain.new_block(proof)
+	block = blockchain.new_block(proof, None)
 
 	response = {
 		'message': "New block mined",
