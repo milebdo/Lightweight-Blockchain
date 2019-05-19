@@ -25,4 +25,5 @@ func (out *TXOutput) IsLockedWithKey(pubKeyHash []byte) bool {
 func NewTXOutput(value int, address string) *TXOutput {
 	txo := &TXOutput{value, nil}
 	txo.Lock([]byte(address))
+	return txo
 }

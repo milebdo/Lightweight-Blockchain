@@ -14,13 +14,13 @@ import (
 const version = byte(0x00)
 const addressChecksumLen = 4
 
-// Wallet stores private and public keys
+// Wallet stores private and public keys (address pair)
 type Wallet struct {
 	PrivateKey ecdsa.PrivateKey
 	PublicKey  []byte
 }
 
-// NewWallet creates and returns a Wallet
+// NewWallet creates and returns a Wallet (address pair)
 func NewWallet() *Wallet {
 	private, public := newKeyPair()
 	wallet := Wallet{private, public}
@@ -60,6 +60,15 @@ func checksum(payload []byte) []byte {
 	return secondSHA[:addressChecksumLen]
 }
 
+// ValidateAddress check if address if valid
+func ValidateAddress(address string) bool {
+	pubKeyHash := Base58Decode([]byte(address))
+	actualChecksum := pubKeyHash[len(pubKeyHash) - addressChecksumLen:]
+	version := pubKeyHash[0]
+	pubKeyHash = pubKeyHash[1 : len(pubKeyHash) - addressChecksumLen]
+	targetChecksum := checksum(append([]byte{version}, pubKeyHash...))
+	return bytes.Compare(actualChecksum, targetChecksum) == 0
+}
 
 // ************** crypto caculation helper ****************//
 
