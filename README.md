@@ -45,10 +45,7 @@ To publish a transaction with a `POST` request:
 
 ```
 curl -X POST -H "Content-Type: application/json" \
-    -d '{"sender": "1senderAdd", \
-         "recipient": "3recipientAdd", \
-         "amount": 4 \
-        }' \
+    -d '{"sender": "1senderAdd", "recipient": "3recipientAdd", "amount": 4}' \
     "http://localhost:5000/transactions/new"
 ```
 
@@ -73,3 +70,29 @@ cd golang-blockchain
 go build .
 ```
 
+### API Doc
+
+- Create a blockchain and send genesis block reward to ADDRESS
+```
+./golang-blockchain createblockchain -address ADDRESS 
+```
+- Generates a new key-pair and saves it into the wallet file
+```
+./golang-blockchain createwallet 
+```
+- Get balance of ADDRESS
+```
+./golang-blockchain getbalance -address ADDRESS 
+```
+- Lists all addresses from the wallet file
+```
+./golang-blockchain listaddresses 
+```
+- Print all the blocks of the blockchain
+```
+./golang-blockchain printchain 
+```
+- Send AMOUNT of coins from FROM address to TO
+```
+./golang-blockchain send -from FROM -to TO -amount AMOUNT 
+```

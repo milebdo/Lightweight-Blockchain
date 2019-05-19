@@ -47,7 +47,7 @@ func (cli *CLI) getBalance(address string) {
 	balance := 0
 	pubKeyHash := Base58Decode([]byte(address))
 	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-4]
-	UTXOs := bc.FindUTXO(address)
+	UTXOs := bc.FindUTXO(pubKeyHash)
 	for _, out := range UTXOs {
 		balance += out.Value
 	}
