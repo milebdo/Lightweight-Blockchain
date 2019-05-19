@@ -5,7 +5,54 @@ Two version:
 
 `./golang-blockchain` written purely in Golang with BoltDB
 
-`./python-blockchain` written purely in Python 3.6 with Flask for Web server
+`./python-blockchain` written purely in Python 3.6 with Flask for Web server.
+
+Golang version is more strict with all cryptography design and complete data structures, and use database with BoltDB. 
+
+Python version is more lightweight and for demostration, without checking the validation of address in cryptography part, nor use a file system database. Python version directly use the HTTP APIs in the localhost (default port 5000).
+
+
+## Golang Version Environment
+Require golang 10 or more.
+
+Require `BoltDB` as database module, and `ripemd160` algorithms library:
+```
+go get github.com/boltdb/bolt
+go get golang.org/x/crypto/ripemd160
+```
+
+Build the code:
+```
+cd golang-blockchain
+go build .
+```
+
+### APIs Document
+
+- Create a blockchain and send genesis block reward to ADDRESS
+```
+./golang-blockchain createblockchain -address ADDRESS 
+```
+- Generates a new key-pair and saves it into the wallet file
+```
+./golang-blockchain createwallet 
+```
+- Get balance of ADDRESS
+```
+./golang-blockchain getbalance -address ADDRESS 
+```
+- Lists all addresses from the wallet file
+```
+./golang-blockchain listaddresses 
+```
+- Print all the blocks of the blockchain
+```
+./golang-blockchain printchain 
+```
+- Send AMOUNT of coins from FROM address to TO
+```
+./golang-blockchain send -from FROM -to TO -amount AMOUNT 
+```
 
 
 ## Python Version Environment and HTTP API
@@ -35,6 +82,7 @@ pipenv run python blockchain.py -p 5001
 pipenv run python blockchain.py -p 5002
 ```
 
+### APIs Document
 To get full chain, send a `GET` request:
 
 ```
@@ -54,45 +102,3 @@ To mine a block, send a `GET` request:
 curl http://localhost:5000/mine
 ```
 
-
-## Golang Version Environment
-Require golang 10 or more.
-
-Require `BoltDB` as database module, and `ripemd160` algorithms library:
-```
-go get github.com/boltdb/bolt
-go get golang.org/x/crypto/ripemd160
-```
-
-Build the code:
-```
-cd golang-blockchain
-go build .
-```
-
-### API Doc
-
-- Create a blockchain and send genesis block reward to ADDRESS
-```
-./golang-blockchain createblockchain -address ADDRESS 
-```
-- Generates a new key-pair and saves it into the wallet file
-```
-./golang-blockchain createwallet 
-```
-- Get balance of ADDRESS
-```
-./golang-blockchain getbalance -address ADDRESS 
-```
-- Lists all addresses from the wallet file
-```
-./golang-blockchain listaddresses 
-```
-- Print all the blocks of the blockchain
-```
-./golang-blockchain printchain 
-```
-- Send AMOUNT of coins from FROM address to TO
-```
-./golang-blockchain send -from FROM -to TO -amount AMOUNT 
-```
