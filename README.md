@@ -5,7 +5,7 @@ Two version:
 
 `./golang-blockchain` written purely in Golang with BoltDB
 
-`./python-blockchain` written purely in Python 3.6
+`./python-blockchain` written purely in Python 3.6 with Flask for Web server
 
 
 ## Python Version Environment and HTTP API
@@ -53,3 +53,13 @@ To mine a block, send a `GET` request:
 ```
 curl http://localhost:5000/mine
 ```
+
+
+## Golang Version Environment
+Require golang 10 or more.
+
+Require `BoltDB`[https://github.com/boltdb/bolt] as database module:
+```
+go get github.com/boltdb/bolt
+```
+
