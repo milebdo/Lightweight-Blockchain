@@ -83,10 +83,14 @@ func(cli *CLI) send(from, to string, amount int) {
 	if !ValidateAddress(from) && !ValidateAddress(to) {
 		log.Panic("ERROR: address is no valid")
 	}
-	bc := NewBlockchain(from)
+	bc := NewBlockchain()
+	UTXOSet := UTXOSet{bc}
 	defer bc.db.Close()
 
-	tx := NewUTXOTransaction(from, to, amount, bc)
-	bc.MineBlock([]*Transaction{tx})
+	tx := NewUTXOTransaction(from, to, amount, &UTXOSet)
+	cbTx := newCoinbaseTX(from, "")
+	txs := []*Transaction{cbTx, tx}
+
+	newBlock := bc.MineBlock(txs)
 	fmt.Println("Success!")
 }
