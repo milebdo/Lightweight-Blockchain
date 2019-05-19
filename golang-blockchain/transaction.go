@@ -52,18 +52,6 @@ func (tx *Transaction) SetID() {
 }
 
 
-// TXInput - sub type for tx
-type TXInput struct {
-	Txid      []byte
-	Vout      int
-	ScriptSig string
-}
-
-// TXOutput sub type of tx
-type TXOutput struct {
-	Value        int
-	ScriptPubKey string
-}
 
 // CanUnlockOutputWith checks whether the address initiated the transaction
 func (in *TXInput) CanUnlockOutputWith(unlockingData string) bool {

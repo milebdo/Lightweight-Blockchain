@@ -10,6 +10,8 @@ Two version:
 
 ## Python Version Environment and HTTP API
 
+The Python version is more simple, mainly focus on web server request, without establish a full version of database.
+
 Requre Python 3.6 or more. Requre `Flask` and `requests` modules
 
 ```
@@ -22,6 +24,7 @@ pipenv install
 Run single node (default port is 5000 in local host):
 
 ```
+cd python-blockchain
 Python3.6 blockchain.py
 ```
 
@@ -58,8 +61,15 @@ curl http://localhost:5000/mine
 ## Golang Version Environment
 Require golang 10 or more.
 
-Require `BoltDB`[https://github.com/boltdb/bolt] as database module:
+Require `BoltDB` as database module, and `ripemd160` algorithms library:
 ```
 go get github.com/boltdb/bolt
+go get golang.org/x/crypto/ripemd160
+```
+
+Build the code:
+```
+cd golang-blockchain
+go build .
 ```
 
