@@ -50,9 +50,7 @@ func NewUTXOTransaction(from, to string, amount int, UTXOSet *UTXOSet) *Transact
 	var inputs []TXInput
 	var outputs []TXOutput
 	wallets, err := NewWallets()
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 
 	wallet := wallets.GetWallet(from)
 	pubKeyHash := HashPubKey(wallet.PublicKey)
@@ -64,9 +62,7 @@ func NewUTXOTransaction(from, to string, amount int, UTXOSet *UTXOSet) *Transact
 	// Build input list
 	for txid, outs := range validOutputs {
 		txID, err := hex.DecodeString(txid)
-		if err != nil {
-			log.Panic(err)
-		}
+		logError(err)
 
 		for _, out := range outs {
 			input := TXInput{txID, out, nil, wallet.PublicKey}
@@ -91,6 +87,11 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 	if tx.IsCoinbase() {
 		return
 	}
+	for _, vin := range tx.Vin {
+		if prevTXs[hex.EncodeToString(vin.Txid)].ID == nil {
+			log.Panic("ERROR: Previous transaction is not correct")
+		}
+	}
 	txCopy := tx.TrimmedCopy()
 
 	for inID, vin := range txCopy.Vin {
@@ -101,9 +102,7 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 		txCopy.Vin[inID].PubKey = nil
 
 		r, s, err := ecdsa.Sign(rand.Reader, &privKey, txCopy.ID)
-		if err != nil {
-			log.Panic(err)
-		}
+		logError(err)
 
 		signature := append(r.Bytes(), s.Bytes()...)
 		tx.Vin[inID].Signature = signature
@@ -128,6 +127,16 @@ func (tx *Transaction) TrimmedCopy() Transaction {
 
 // Verify verifies signatures of Transaction inputs
 func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
+	if tx.IsCoinbase() {
+		return true
+	}
+
+	for _, vin := range tx.Vin {
+		if prevTXs[hex.EncodeToString(vin.Txid)].ID == nil {
+			log.Panic("ERROR: Previous transaction is not correct")
+		}
+	}
+	
 	txCopy := tx.TrimmedCopy()
 	curve := elliptic.P256()
 
@@ -174,9 +183,7 @@ func(tx *Transaction) Serialize() []byte {
 	var encoded bytes.Buffer
 	enc := gob.NewEncoder(&encoded)
 	err := enc.Encode(tx)
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 	return encoded.Bytes()
 }
 
