@@ -27,7 +27,7 @@ cd golang-blockchain
 go build .
 ```
 
-### APIs Document
+### APIs Documentation
 
 - Create a blockchain and send genesis block reward to ADDRESS
 ```
@@ -48,6 +48,10 @@ go build .
 - Print all the blocks of the blockchain
 ```
 ./golang-blockchain printchain 
+```
+- Rebuilds the UTXO set
+```
+./golang-blockchain reindexutxo
 ```
 - Send AMOUNT of coins from FROM address to TO
 ```

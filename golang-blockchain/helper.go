@@ -25,3 +25,10 @@ func ReverseBytes(data []byte) {
 		data[i], data[j] = data[j], data[i]
 	}
 }
+
+// helper function to log Error
+func logError(err error) {
+	if err != nil {
+		log.Panic(err)
+	}
+}
