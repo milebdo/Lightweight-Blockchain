@@ -8,12 +8,12 @@ import (
 
 //================================== CLI APIs =================================//
 
-func (cli *CLI) createBlockchain(address string) {
+func (cli *CLI) createBlockchain(address, nodeID string) {
 	if !ValidateAddress(address) {
 		log.Panic("ERROR: Address is not valid")
 	}
 
-	bc := CreateBlockchain(address)
+	bc := CreateBlockchain(address, nodeID)
 	defer bc.db.Close()
 	
 	UTXOSet := UTXOSet{bc}
@@ -21,15 +21,15 @@ func (cli *CLI) createBlockchain(address string) {
 	fmt.Println("Create!")
 }
 
-func (cli *CLI) createWallet() {
-	wallets, _ := NewWallets()
+func (cli *CLI) createWallet(nodeID string) {
+	wallets, _ := NewWallets(nodeID)
 	address := wallets.CreateWallet()
-	wallets.SaveToFile()
+	wallets.SaveToFile(nodeID)
 	fmt.Printf("Your new address: %s\n", address)
 }
 
-func (cli *CLI) listAddresses() {
-	wallets, err := NewWallets()
+func (cli *CLI) listAddresses(nodeID string) {
+	wallets, err := NewWallets(nodeID)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -40,11 +40,11 @@ func (cli *CLI) listAddresses() {
 	}
 }
 
-func (cli *CLI) getBalance(address string) {
+func (cli *CLI) getBalance(address, nodeID string) {
 	if !ValidateAddress(address) {
 		log.Panic("ERROR: Address is not valid")
 	}
-	bc := NewBlockchain()
+	bc := NewBlockchain(nodeID)
 	UTXOSet := UTXOSet{bc}
 	defer bc.db.Close()
 
@@ -59,8 +59,8 @@ func (cli *CLI) getBalance(address string) {
 	fmt.Printf("Balance of '%s': %d\n", address, balance)
 }
 
-func (cli *CLI) printChain() {
-	bc := NewBlockchain()
+func (cli *CLI) printChain(nodeID string) {
+	bc := NewBlockchain(nodeID)
 	defer bc.db.Close()
 
 	bci := bc.Iterator()
@@ -100,7 +100,8 @@ func(cli *CLI) send(from, to string, amount int) {
 	fmt.Println("Success!")
 }
 
-func (cli *CLI) reindexUTXO() {
+func (cli *CLI) reindexUTXO(nodeID string) {
+	bc := NewBlockchain(nodeID)
 	UTXOSet := UTXOSet{NewBlockchain()}
 	UTXOSet.Reindex()
 	count := UTXOSet.CountTransactions()

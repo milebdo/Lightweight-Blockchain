@@ -53,17 +53,21 @@ go build .
 ```
 ./golang-blockchain reindexutxo
 ```
-- Send AMOUNT of coins from FROM address to TO
+- Send AMOUNT of coins from FROM address to TO. Mine on the same node, when -mine is set
 ```
-./golang-blockchain send -from FROM -to TO -amount AMOUNT 
+./golang-blockchain send -from FROM -to TO -amount AMOUNT -mine
+```
+- Start a node with ID specified in NODE_ID env. var. -miner enables mining
+```
+startnode -miner ADDRESS 
 ```
 
 
 ## Python Version Environment and HTTP API
 
-The Python version is more simple, mainly focus on web server request, without establish a full version of database.
+The Python version is more simple, mainly focus on web server request, without establishing a full version of database.
 
-Requre Python 3.6 or more. Requre `Flask` and `requests` modules
+Require Python 3.6 or more. Require `Flask` and `requests` modules.
 
 ```
 pip install Flask==0.12.2 requests==2.18.4
