@@ -6,6 +6,8 @@ import (
 	"net"
 )
 
+const commandLength = 12
+
 var nodeAddress string
 var knownNodes = []string{"localhost:3000"}
 
@@ -46,4 +48,25 @@ func sendVersion(addr string, bc *Blockchain) {
 
 	request := append(commandToBytes("version"), payload...)
 	sendData(addr, request)
+}
+
+
+func commandToBytes(command string) []byte {
+	var bytes [commandLength]byte
+
+	for i, c := range command {
+		bytes[i] = byte(c)
+	}
+
+	return bytes[:]
+}
+
+func bytesToCommand(bytes []byte) string {
+	var command []byte
+	for _, b := range bytes {
+		if b != 0x0 {
+			command = append(command, b)
+		}
+	}
+	return fmt.Sprintf("%s", command)
 }
