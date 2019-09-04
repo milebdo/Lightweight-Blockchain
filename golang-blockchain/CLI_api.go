@@ -15,7 +15,7 @@ func (cli *CLI) createBlockchain(address, nodeID string) {
 
 	bc := CreateBlockchain(address, nodeID)
 	defer bc.db.Close()
-	
+
 	UTXOSet := UTXOSet{bc}
 	UTXOSet.Reindex()
 	fmt.Println("Create!")
@@ -69,6 +69,7 @@ func (cli *CLI) printChain(nodeID string) {
 		block := bci.Next()
 
 		fmt.Printf("============ Block %x ============\n", block.Hash)
+		fmt.Printf("Height: %d\n", block.Height)
 		fmt.Printf("Prev. Hash: %x\n", block.PrevBlockHash)
 		pow := NewProofOfWork(block)
 		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
@@ -76,27 +77,35 @@ func (cli *CLI) printChain(nodeID string) {
 			fmt.Println(tx)
 		}
 		fmt.Printf("\n\n")
-		
+
 		if len(block.PrevBlockHash) == 0 {
 			break
 		}
 	}
 }
 
-func(cli *CLI) send(from, to string, amount int) {
+func (cli *CLI) send(from, to string, amount int, nodeID string, mineNow bool) {
 	if !ValidateAddress(from) || !ValidateAddress(to) {
 		log.Panic("ERROR: address is no valid")
 	}
-	bc := NewBlockchain()
+	bc := NewBlockchain(nodeID)
 	UTXOSet := UTXOSet{bc}
 	defer bc.db.Close()
 
-	tx := NewUTXOTransaction(from, to, amount, &UTXOSet)
-	cbTx := NewCoinbaseTX(from, "")
-	txs := []*Transaction{cbTx, tx}
+	wallets, err := NewWallets(nodeID)
+	logError(err)
+	wallet := wallets.GetWallet(from)
+	tx := NewUTXOTransaction(&wallet, to, amount, &UTXOSet)
 
-	newBlock := bc.MineBlock(txs)
-	UTXOSet.Update(newBlock)
+	if mineNow {
+		cbTx := NewCoinbaseTX(from, "")
+		txs := []*Transaction{cbTx, tx}
+		NewBlock := bc.MineBlock(txs)
+		UTXOSet.Update(NewBlock)
+	} else {
+		sendTx(knownNodes[0], tx)
+	}
+
 	fmt.Println("Success!")
 }
 
@@ -106,4 +115,16 @@ func (cli *CLI) reindexUTXO(nodeID string) {
 	UTXOSet.Reindex()
 	count := UTXOSet.CountTransactions()
 	fmt.Printf("Done! There are %d transactions in the UTXO set.\n", count)
+}
+
+func (cli *CLI) startNode(nodeID, minerAddress string) {
+	fmt.Printf("Starting node %s\n", nodeID)
+	if len(minerAddress) > 0 {
+		if ValidateAddress(minerAddress) {
+			fmt.Println("Mining is on. Address to receive rewards: ", minerAddress)
+		} else {
+			long.Panic("Wrong address.")
+		}
+	}
+	StartSever(nodeID, minerAddress)
 }

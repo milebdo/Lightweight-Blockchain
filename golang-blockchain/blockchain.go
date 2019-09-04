@@ -2,13 +2,13 @@ package main
 
 import (
 	"bytes"
+	"crypto/ecdsa"
+	"encoding/hex"
+	"errors"
+	"fmt"
 	"log"
 	"os"
-	"fmt"
-	"errors"
-	"encoding/hex"
-	"crypto/ecdsa"
-	
+
 	"github.com/boltdb/bolt"
 )
 
@@ -21,7 +21,6 @@ type Blockchain struct {
 	tip []byte
 	db  *bolt.DB
 }
-
 
 // CreateBlockchain creates a new blockchain DB
 func CreateBlockchain(address string) *Blockchain {
@@ -81,8 +80,7 @@ func NewBlockchain() *Blockchain {
 	return &bc
 }
 
-
-// FindUnspentTransactions returns a list of UTXOs
+// FindUTXO returns a list of UTXOs
 func (bc *Blockchain) FindUTXO() map[string]TXOutputs {
 	UTXO := make(map[string]TXOutputs)
 	spentTXOs := make(map[string][]int)
@@ -113,11 +111,10 @@ func (bc *Blockchain) FindUTXO() map[string]TXOutputs {
 			if !tx.IsCoinbase() {
 				for _, in := range tx.Vin {
 					inTxID := hex.EncodeToString(in.Txid)
-						spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Vout)
+					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Vout)
 				}
 			}
 		}
-		
 
 		if len(block.PrevBlockHash) == 0 {
 			break
@@ -164,7 +161,7 @@ func (bc *Blockchain) VerifyTransaction(tx *Transaction) bool {
 	if tx.IsCoinbase() {
 		return true
 	}
-	
+
 	prevTXs := make(map[string]Transaction)
 	for _, vin := range tx.Vin {
 		prevTX, err := bc.FindTransaction(vin.Txid)
@@ -178,7 +175,7 @@ func (bc *Blockchain) VerifyTransaction(tx *Transaction) bool {
 // MineBlock mines a new block with the provided transactions
 func (bc *Blockchain) MineBlock(transactions []*Transaction) *Block {
 	var lastHash []byte
-	for _, tx:= range transactions {
+	for _, tx := range transactions {
 		if !bc.VerifyTransaction(tx) {
 			log.Panic("ERROR: Invalid transaction")
 		}
@@ -210,7 +207,6 @@ func (bc *Blockchain) MineBlock(transactions []*Transaction) *Block {
 
 	return newBlock
 }
-
 
 func dbExists() bool {
 	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
