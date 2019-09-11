@@ -6,7 +6,6 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
-	"log"
 
 	"golang.org/x/crypto/ripemd160"
 )
@@ -45,9 +44,7 @@ func HashPubKey(pubKey []byte) []byte {
 	publicSHA256 := sha256.Sum256(pubKey)
 	RIPEMD160Hasher := ripemd160.New()
 	_, err := RIPEMD160Hasher.Write(publicSHA256[:])
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 
 	publicRIPEMD160 := RIPEMD160Hasher.Sum(nil)
 	return publicRIPEMD160
@@ -63,9 +60,9 @@ func checksum(payload []byte) []byte {
 // ValidateAddress check if address if valid
 func ValidateAddress(address string) bool {
 	pubKeyHash := Base58Decode([]byte(address))
-	actualChecksum := pubKeyHash[len(pubKeyHash) - addressChecksumLen:]
+	actualChecksum := pubKeyHash[len(pubKeyHash)-addressChecksumLen:]
 	version := pubKeyHash[0]
-	pubKeyHash = pubKeyHash[1 : len(pubKeyHash) - addressChecksumLen]
+	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-addressChecksumLen]
 	targetChecksum := checksum(append([]byte{version}, pubKeyHash...))
 	return bytes.Compare(actualChecksum, targetChecksum) == 0
 }
@@ -75,9 +72,7 @@ func ValidateAddress(address string) bool {
 func newKeyPair() (ecdsa.PrivateKey, []byte) {
 	curve := elliptic.P256()
 	private, err := ecdsa.GenerateKey(curve, rand.Reader)
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 	pubKey := append(private.PublicKey.X.Bytes(), private.PublicKey.Y.Bytes()...)
 
 	return *private, pubKey

@@ -2,12 +2,11 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"os"
-	"log"
-	"io/ioutil"
-	"encoding/gob"
 	"crypto/elliptic"
+	"encoding/gob"
+	"fmt"
+	"io/ioutil"
+	"os"
 )
 
 const walletFile = "wallet_%s.dat"
@@ -56,17 +55,13 @@ func (ws *Wallets) LoadFromFile(nodeID string) error {
 	}
 
 	fileContent, err := ioutil.ReadFile(walletFile)
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 
-	var wallets Wallets 
+	var wallets Wallets
 	gob.Register(elliptic.P256())
 	decoder := gob.NewDecoder(bytes.NewReader(fileContent))
 	err = decoder.Decode(&wallets)
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 
 	ws.Wallets = wallets.Wallets
 	return nil
@@ -80,12 +75,8 @@ func (ws Wallets) SaveToFile(nodeID string) {
 
 	encoder := gob.NewEncoder(&content)
 	err := encoder.Encode(ws)
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 
 	err = ioutil.WriteFile(walletFile, content.Bytes(), 0644)
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 }

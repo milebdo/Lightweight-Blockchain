@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/boltdb/bolt"
 )
 
@@ -29,9 +27,7 @@ func (i *BlockchainIterator) Next() *Block {
 
 		return nil
 	})
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 
 	i.currentHash = block.PrevBlockHash
 	return block

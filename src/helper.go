@@ -11,13 +11,10 @@ func IntToHex(num int64) []byte {
 	buff := new(bytes.Buffer)
 
 	err := binary.Write(buff, binary.BigEndian, num)
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 
 	return buff.Bytes()
 }
-
 
 // ReverseBytes reverses a byte array
 func ReverseBytes(data []byte) {

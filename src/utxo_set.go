@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	"encoding/hex"
+	"log"
 
 	"github.com/boltdb/bolt"
 )
@@ -18,22 +18,18 @@ type UTXOSet struct {
 func (u UTXOSet) Reindex() {
 	db := u.Blockchain.db
 	bucketName := []byte(utxoBucket)
-	
+
 	err := db.Update(func(tx *bolt.Tx) error {
 		err := tx.DeleteBucket(bucketName)
 		if err != nil && err != bolt.ErrBucketNotFound {
 			log.Panic(err)
 		}
 		_, err = tx.CreateBucket(bucketName)
-		if err != nil {
-			log.Panic(err)
-		}
+		logError(err)
 
 		return nil
 	})
-	if err != nil {
-		log.Panic(err)
-	}
+	logError(err)
 
 	UTXO := u.Blockchain.FindUTXO()
 
@@ -42,18 +38,15 @@ func (u UTXOSet) Reindex() {
 
 		for txID, outs := range UTXO {
 			key, err := hex.DecodeString(txID)
-			if err != nil {
-				log.Panic(err)
-			}
+			logError(err)
 			err = b.Put(key, outs.Serialize())
 			if err != nil {
-				log.Panic(err)		///@dev createblockchain err
+				log.Panic(err) ///@dev createblockchain err
 			}
 		}
 		return nil
 	})
 }
-
 
 // FindSpendableOutputs finds and returns unspent outputs to reference in inputs
 func (u UTXOSet) FindSpendableOutputs(pubkeyHash []byte, amount int) (int, map[string][]int) {
@@ -83,7 +76,6 @@ func (u UTXOSet) FindSpendableOutputs(pubkeyHash []byte, amount int) (int, map[s
 	return accumulated, unspentOutputs
 }
 
-
 // FindUTXO finds UTXO for a public key hash
 func (u UTXOSet) FindUTXO(pubkeyHash []byte) []TXOutput {
 	var UTXOs []TXOutput
@@ -108,7 +100,6 @@ func (u UTXOSet) FindUTXO(pubkeyHash []byte) []TXOutput {
 	return UTXOs
 }
 
-
 // Update updates the UTXO set with transactions from the Block
 func (u UTXOSet) Update(block *Block) {
 	db := u.Blockchain.db
@@ -122,7 +113,7 @@ func (u UTXOSet) Update(block *Block) {
 					updatedOuts := TXOutputs{}
 					outsBytes := b.Get(vin.Txid)
 					outs := DeserializeOutputs(outsBytes)
-					
+
 					for outIdx, out := range outs.Outputs {
 						if outIdx != vin.Vout {
 							updatedOuts.Outputs = append(updatedOuts.Outputs, out)
