@@ -23,43 +23,42 @@ go get golang.org/x/crypto/ripemd160
 
 Build the code:
 ```
-cd golang-blockchain
-go build .
+go build -o ../build/lightchain ./src
 ```
 
 ### APIs Documentation
 
 - Create a blockchain and send genesis block reward to ADDRESS
 ```
-./golang-blockchain createblockchain -address ADDRESS 
+./lightchain createblockchain -address ADDRESS 
 ```
 - Generates a new key-pair and saves it into the wallet file
 ```
-./golang-blockchain createwallet 
+./lightchain createwallet 
 ```
 - Get balance of ADDRESS
 ```
-./golang-blockchain getbalance -address ADDRESS 
+./lightchain getbalance -address ADDRESS 
 ```
 - Lists all addresses from the wallet file
 ```
-./golang-blockchain listaddresses 
+./lightchain listaddresses 
 ```
 - Print all the blocks of the blockchain
 ```
-./golang-blockchain printchain 
+./lightchain printchain 
 ```
 - Rebuilds the UTXO set
 ```
-./golang-blockchain reindexutxo
+./lightchain reindexutxo
 ```
 - Send AMOUNT of coins from FROM address to TO. Mine on the same node, when -mine is set
 ```
-./golang-blockchain send -from FROM -to TO -amount AMOUNT -mine
+./lightchain send -from FROM -to TO -amount AMOUNT -mine
 ```
 - Start a node with ID specified in NODE_ID env. var. -miner enables mining
 ```
-startnode -miner ADDRESS 
+./lightchain startnode -miner ADDRESS 
 ```
 
 
@@ -79,7 +78,7 @@ pipenv install
 Run single node (default port is 5000 in local host):
 
 ```
-cd python-blockchain
+cd demo
 Python3.6 blockchain.py
 ```
 
