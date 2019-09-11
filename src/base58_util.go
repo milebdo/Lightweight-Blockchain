@@ -16,7 +16,7 @@ func Base58Encode(input []byte) []byte {
 	zero := big.NewInt(0)
 	mod := &big.Int{}
 
-	for x.Cmp(zero) != 0{
+	for x.Cmp(zero) != 0 {
 		x.DivMod(x, base, mod)
 		result = append(result, b58Alphabet[mod.Int64()])
 	}
@@ -29,7 +29,7 @@ func Base58Encode(input []byte) []byte {
 			break
 		}
 	}
-	
+
 	return result
 }
 

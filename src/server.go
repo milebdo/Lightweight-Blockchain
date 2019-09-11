@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"encoding/gob"
 	"fmt"
+	"io/ioutil"
 	"net"
 )
 
@@ -10,13 +12,6 @@ const commandLength = 12
 
 var nodeAddress string
 var knownNodes = []string{"localhost:3000"}
-
-type version {
-	Version    int
-	BestHeight int
-	AddrFrom   string
-}
-
 
 // StartServer starts a node
 func StartServer(nodeID, minerAddress string) {
@@ -40,6 +35,62 @@ func StartServer(nodeID, minerAddress string) {
 	}
 }
 
+func handleConnection(conn net.Conn, bc *Blockchain) {
+	request, err := ioutil.ReadAll(conn)
+	logError(err)
+	command := bytesToCommand(request[:commandLength])
+	fmt.Printf("Received %s command\n", command)
+
+	switch command {
+	case "addr":
+		handleAddr(request)
+	case "block":
+		handleBlock(request, bc)
+	case "inv":
+		handleInv(request, bc)
+	case "getblocks":
+		handleGetBlocks(request, bc)
+	case "getdata":
+		handleGetData(request, bc)
+	case "tx":
+		handleTx(request, bc)
+	case "version":
+		handleVersion(request, bc)
+	default:
+		fmt.Println("Unknown command!")
+	}
+
+	conn.Close()
+}
+
+type version struct {
+	Version    int
+	BestHeight int
+	AddrFrom   string
+}
+
+func handleVersion(request []byte, bc *Blockchain) {
+	var buff bytes.Buffer
+	var payload version
+
+	buff.Write(request[commandLength:])
+	dec := gob.NewDecoder(&buff)
+	err := dec.Decode(&payload)
+	logError(err)
+
+	myBestHeight := bc.GetBestHeight()
+	foreignerBestHeight := payloadBestHeight
+
+	if myBestHeight < foreignerBestHeight {
+		sendGetBlocks(payload.AddrFrom)
+	} else if myBestHeight > foreignerBestHeight {
+		sendVersion(payload.AddrFrom, bc)
+	}
+
+	if !nodeIsKnown(payload.AddrFrom) {
+		knownNodes = append(knownNodes, payload.AddrFrom)
+	}
+}
 
 //
 func sendVersion(addr string, bc *Blockchain) {
@@ -50,23 +101,25 @@ func sendVersion(addr string, bc *Blockchain) {
 	sendData(addr, request)
 }
 
-
-func commandToBytes(command string) []byte {
-	var bytes [commandLength]byte
-
-	for i, c := range command {
-		bytes[i] = byte(c)
-	}
-
-	return bytes[:]
+type getblocks struct {
+	AddrFrom string
 }
 
-func bytesToCommand(bytes []byte) string {
-	var command []byte
-	for _, b := range bytes {
-		if b != 0x0 {
-			command = append(command, b)
-		}
-	}
-	return fmt.Sprintf("%s", command)
+func handleGetBlocks(request []byte, bc *Blockchain) {
+	var buff byte.Buffer
+	var payload getblocks
+
+	buff.Write(request[commandLength:])
+	dec := gob.NewDecoder(&buff)
+	err := dec.Decode(&payload)
+	logError(err)
+
+	blocks := bc.GetBlockHashes()
+	sendInv(payload.AddrFrom, "block", blocks)
+}
+
+type inv struct {
+	AddrFrom string
+	Type     string
+	Items    [][]byte
 }
