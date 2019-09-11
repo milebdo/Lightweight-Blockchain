@@ -3,13 +3,13 @@ A lightweight but complete blockchain.
 
 Two version:
 
-`./golang-blockchain` written purely in Golang with BoltDB
+`./src` contains source files purely in Golang with BoltDB
 
-`./python-blockchain` written purely in Python 3.6 with Flask for Web server.
+`./demo-py` contains a simple demo written purely in Python 3.6 with Flask for Web server.
 
 Golang version is more strict with all cryptography design and complete data structures, and use database with BoltDB. 
 
-Python version is more lightweight and for demostration, without checking the validation of address in cryptography part, nor use a file system database. Python version directly use the HTTP APIs in the localhost (default port 5000).
+Python version is more lightweight and just for demostration, without checking the validation of address in cryptography part, nor use a file system database. Python version directly use the HTTP APIs in the localhost (default port 5000).
 
 
 ## Golang Version Environment
@@ -63,7 +63,7 @@ startnode -miner ADDRESS
 ```
 
 
-## Python Version Environment and HTTP API
+## Demo (Python) Version Environment and HTTP API
 
 The Python version is more simple, mainly focus on web server request, without establishing a full version of database.
 
