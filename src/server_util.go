@@ -6,6 +6,12 @@ import (
 	"fmt"
 )
 
+func requestBlocks() {
+	for _, node := range knownNodes {
+		sendGetBlocks(node)
+	}
+}
+
 func commandToBytes(command string) []byte {
 	var bytes [commandLength]byte
 
@@ -24,6 +30,10 @@ func bytesToCommand(bytes []byte) string {
 		}
 	}
 	return fmt.Sprintf("%s", command)
+}
+
+func extractCommand(request []byte) []byte {
+	return request[:commandLength]
 }
 
 func nodeIsKnown(addr string) bool {
