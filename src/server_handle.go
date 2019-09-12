@@ -196,8 +196,21 @@ func handleBlock(request []byte, bc *Blockchain) {
 	err := dec.Decode(&payload)
 	logError(err)
 
-	blocks := bc.GetBlockHashes()
-	sendInv(payload.AddrFrom, "block", blocks)
+	blockData := payload.Block
+	block := DeserializeBlock(blockData)
+	fmt.Println("Received a new block.")
+
+	bc.AddBlock(block)
+	fmt.Printf("Add block %x\n", block.Hash)
+
+	if len(blocksInTransit) > 0 {
+		blockHash := blocksInTransit[0]
+		sendGetData(payload.AddrFrom, "block", blockHash)
+		blocksInTransit = blocksInTransit[1:]
+	} else {
+		UTXOSet := UTXOSet{bc}
+		UTXOSet.Reindex()
+	}
 }
 
 func handleTx(request []byte, bc *Blockchain) {
