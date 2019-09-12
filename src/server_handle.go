@@ -13,7 +13,7 @@ type addr struct {
 
 func handleAddr(request []byte) {
 	var buff bytes.Buffer
-	var payload version
+	var payload addr
 
 	buff.Write(request[commandLength:])
 	dec := gob.NewDecoder(&buff)
@@ -27,9 +27,11 @@ func handleAddr(request []byte) {
 
 func sendAddr(address string) {
 	nodes := addr{knownNodes}
-	nodes.AddrList = append(node.AddrList, nodeAddress)
+	nodes.AddrList = append(nodes.AddrList, nodeAddress)
 	payload := gobEncode(nodes)
 	request := append(commandToBytes("addr"), payload...)
+
+	sendData(address, request)
 }
 
 type version struct {
@@ -48,7 +50,7 @@ func handleVersion(request []byte, bc *Blockchain) {
 	logError(err)
 
 	myBestHeight := bc.GetBestHeight()
-	foreignerBestHeight := payloadBestHeight
+	foreignerBestHeight := payload.BestHeight
 
 	if myBestHeight < foreignerBestHeight {
 		sendGetBlocks(payload.AddrFrom)
@@ -74,7 +76,7 @@ type getblocks struct {
 }
 
 func handleGetBlocks(request []byte, bc *Blockchain) {
-	var buff byte.Buffer
+	var buff bytes.Buffer
 	var payload getblocks
 
 	buff.Write(request[commandLength:])
@@ -86,12 +88,6 @@ func handleGetBlocks(request []byte, bc *Blockchain) {
 	sendInv(payload.AddrFrom, "block", blocks)
 }
 
-type inv struct {
-	AddrFrom string
-	Type     string
-	Items    [][]byte
-}
-
 func sendGetBlocks(address string) {
 	payload := gobEncode(getblocks{nodeAddress})
 	request := append(commandToBytes("getblocks"), payload...)
@@ -99,21 +95,27 @@ func sendGetBlocks(address string) {
 	sendData(address, request)
 }
 
+type inv struct {
+	AddrFrom string
+	Type     string
+	Items    [][]byte
+}
+
 func handleInv(request []byte, bc *Blockchain) {
-	var buff byte.Buffer
-	var payload getblocks
+	var buff bytes.Buffer
+	var payload inv
 
 	buff.Write(request[commandLength:])
 	dec := gob.NewDecoder(&buff)
 	err := dec.Decode(&payload)
 	logError(err)
 
-	fmt.Printf("Received inventory with %d %s\n", lend(payload.Items), payload.Type)
+	fmt.Printf("Received inventory with %d %s\n", len(payload.Items), payload.Type)
 
 	if payload.Type == "Block" {
 		blocksInTransit = payload.Items
 
-		blockHash := payload.Item[0]
+		blockHash := payload.Items[0]
 		sendGetData(payload.AddrFrom, "block", blockHash)
 
 		newInTransit := [][]byte{}
@@ -148,8 +150,8 @@ type getdata struct {
 }
 
 func handleGetData(request []byte, bc *Blockchain) {
-	var buff byte.Buffer
-	var payload getblocks
+	var buff bytes.Buffer
+	var payload getdata
 
 	buff.Write(request[commandLength:])
 	dec := gob.NewDecoder(&buff)
@@ -186,8 +188,8 @@ type tx struct {
 }
 
 func handleBlock(request []byte, bc *Blockchain) {
-	var buff byte.Buffer
-	var payload getblocks
+	var buff bytes.Buffer
+	var payload block
 
 	buff.Write(request[commandLength:])
 	dec := gob.NewDecoder(&buff)
@@ -199,8 +201,8 @@ func handleBlock(request []byte, bc *Blockchain) {
 }
 
 func handleTx(request []byte, bc *Blockchain) {
-	var buff byte.Buffer
-	var payload getblocks
+	var buff bytes.Buffer
+	var payload tx
 
 	buff.Write(request[commandLength:])
 	dec := gob.NewDecoder(&buff)
@@ -237,7 +239,7 @@ func handleTx(request []byte, bc *Blockchain) {
 
 			// put the coinbase reward in
 			cbTx := NewCoinbaseTX(miningAddress, "")
-			txs.append(txs, cbTx)
+			txs = append(txs, cbTx)
 			newBlock := bc.MineBlock(txs)
 			UTXOSet := UTXOSet{bc}
 			UTXOSet.Reindex()

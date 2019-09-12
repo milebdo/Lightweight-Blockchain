@@ -23,7 +23,12 @@ go get golang.org/x/crypto/ripemd160
 
 Build the code:
 ```
-go build -o ../build/lightchain ./src
+go build -o ./build/lightchain ./src
+```
+
+Set the node id `NODE_ID`:
+```
+export NODE_ID=3000
 ```
 
 ### APIs Documentation

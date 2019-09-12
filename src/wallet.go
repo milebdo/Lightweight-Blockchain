@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
-const version = byte(0x00)
+const addversion = byte(0x00)
 const addressChecksumLen = 4
 
 // Wallet stores private and public keys (address pair)
@@ -30,7 +30,7 @@ func NewWallet() *Wallet {
 func (w Wallet) GetAddress() []byte {
 	pubKeyHash := HashPubKey(w.PublicKey)
 
-	versionedPayload := append([]byte{version}, pubKeyHash...)
+	versionedPayload := append([]byte{addversion}, pubKeyHash...)
 	checksum := checksum(versionedPayload)
 
 	fullPayload := append(versionedPayload, checksum...)

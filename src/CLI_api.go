@@ -109,7 +109,7 @@ func (cli *CLI) send(from, to string, amount int, nodeID string, mineNow bool) {
 
 func (cli *CLI) reindexUTXO(nodeID string) {
 	bc := NewBlockchain(nodeID)
-	UTXOSet := UTXOSet{NewBlockchain()}
+	UTXOSet := UTXOSet{bc}
 	UTXOSet.Reindex()
 	count := UTXOSet.CountTransactions()
 	fmt.Printf("Done! There are %d transactions in the UTXO set.\n", count)
@@ -121,8 +121,8 @@ func (cli *CLI) startNode(nodeID, minerAddress string) {
 		if ValidateAddress(minerAddress) {
 			fmt.Println("Mining is on. Address to receive rewards: ", minerAddress)
 		} else {
-			long.Panic("Wrong address.")
+			log.Panic("Wrong address.")
 		}
 	}
-	StartSever(nodeID, minerAddress)
+	StartServer(nodeID, minerAddress)
 }

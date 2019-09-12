@@ -228,7 +228,7 @@ func dbExists(dbFile string) bool {
 func (bc *Blockchain) GetBestHeight() int {
 	var lastBlock Block
 
-	err := bc.db.View(func(tx *bolt.tx) error {
+	err := bc.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
 		lastHash := b.Get([]byte("l"))
 		blockData := b.Get(lastHash)
@@ -247,7 +247,7 @@ func (bc *Blockchain) GetBlockHashes() [][]byte {
 
 	for {
 		block := bci.Next()
-		blocks.append(blocks, block.Hash)
+		blocks = append(blocks, block.Hash)
 		if len(block.PrevBlockHash) == 0 {
 			break
 		}
@@ -260,7 +260,7 @@ func (bc *Blockchain) GetBlockHashes() [][]byte {
 func (bc *Blockchain) GetBlock(blockHash []byte) (Block, error) {
 	var block Block
 
-	err := bc.db.View(func(tx *bolt.tx) error {
+	err := bc.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
 		blockData := b.Get(blockHash)
 		if blockData == nil {
