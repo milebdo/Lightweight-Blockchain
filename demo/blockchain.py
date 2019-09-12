@@ -13,11 +13,13 @@ from urllib.parse import urlparse
 import requests
 
 
+###################################### Blockchain Part ######################################
 """
 basic class: Blockchain
 the basic data structure for blockchain
 """
 class Blockchain(object):
+	# Constructor
 	def __init__(self):
 		self.chain = []
 		self.current_transactions = []
@@ -35,6 +37,7 @@ class Blockchain(object):
 		:param previous_hash: (Optional) <str> Hash of previous Block
 		:return: <dict> New Block
 		"""
+		# construcor a block
 		block = {
 			'index': len(self.chain) + 1,
 			'timestamp': time(),
@@ -43,7 +46,7 @@ class Blockchain(object):
 			'previous_hash': previous_hash or self.hash(self.chain[-1]),
 		}
 		
-		# reset tx list
+		# reset tx list to default
 		self.current_transactions = []
 		self.chain.append(block)
 		return block
@@ -57,6 +60,7 @@ class Blockchain(object):
 		:param amount: <int> Amount
 		:return: <int> The index of the Block that will hold this transaction
 		"""
+		# put tx into mempool
 		self.current_transactions.append({
 			'sender': sender,
 			'recipient': recipient,
@@ -65,7 +69,8 @@ class Blockchain(object):
 		
 		return self.last_block['index'] + 1
 
-
+	
+	# an util method to return hash of a block
 	@staticmethod
 	def hash(block: Dict[str, Any]) -> str:
 		"""
@@ -77,9 +82,9 @@ class Blockchain(object):
 		return hashlib.sha256(block_string).hexdigest()
 
 	
+	# Return the last block in chain
 	@property
 	def last_block(self) -> Dict[str, Any]:
-		# Return the last block in chain
 		return self.chain[-1]
 
 	
@@ -177,6 +182,7 @@ class Blockchain(object):
 
 
 
+###################################  Server Part #####################################
 """
 Flask web API
 """
@@ -275,6 +281,8 @@ def consensus():
 	return jsonify(response), 200
 
 
+
+######################################## Main #####################################
 
 # run the node on localhost:5000 by default
 if __name__ == '__main__':
