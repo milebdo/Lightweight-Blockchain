@@ -5,14 +5,14 @@ Two version:
 
 `./src` contains source files purely in Golang with BoltDB
 
-`./demo-py` contains a simple demo written purely in Python 3.6 with Flask for Web server.
+`./demo` contains a simple demo written purely in Python 3.6 with Flask for Web server.
 
 Golang version is more strict with all cryptography design and complete data structures, and use database with BoltDB. 
 
 Python version is more lightweight and just for demostration, without checking the validation of address in cryptography part, nor use a file system database. Python version directly use the HTTP APIs in the localhost (default port 5000).
 
 
-## Golang Version Environment
+## Golang Version Environment and APIs
 Require golang 10 or more.
 
 Require `BoltDB` as database module, and `ripemd160` algorithms library:
@@ -62,7 +62,7 @@ go build -o ../build/lightchain ./src
 ```
 
 
-## Demo (Python) Version Environment and HTTP API
+## Demo (Python) Version Environment and HTTP APIs
 
 The Python version is more simple, mainly focus on web server request, without establishing a full version of database.
 

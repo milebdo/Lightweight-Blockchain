@@ -142,7 +142,7 @@ func (bc *Blockchain) FindTransaction(ID []byte) (Transaction, error) {
 		}
 	}
 
-	return Transaction{}, errors.New("Tx is not found!")
+	return Transaction{}, errors.New("Tx is not found")
 }
 
 // SignTransaction signs inputs of a Transaction
@@ -228,15 +228,13 @@ func dbExists(dbFile string) bool {
 func (bc *Blockchain) GetBestHeight() int {
 	var lastBlock Block
 
-	err := bc.db.View(
-		func(tx *bolt.tx) error {
-			b := tx.Bucket([]byte(blocksBucket))
-			lastHash := b.Get([]byte("l"))
-			blockData := b.Get(lastHash)
-			lastBlock = *DeserializeBlock(blockData)
-			return nil
-		}
-	)
+	err := bc.db.View(func(tx *bolt.tx) error {
+		b := tx.Bucket([]byte(blocksBucket))
+		lastHash := b.Get([]byte("l"))
+		blockData := b.Get(lastHash)
+		lastBlock = *DeserializeBlock(blockData)
+		return nil
+	})
 	logError(err)
 
 	return lastBlock.Height

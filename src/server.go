@@ -189,3 +189,90 @@ func handleGetData(request []byte, bc *Blockchain) {
 		sendTx(payload.AddrFrom, &tx)
 	}
 }
+
+type block struct {
+	AddrFrom string
+	Block    []byte
+}
+
+type tx struct {
+	AddrFrom    string
+	Transaction []byte
+}
+
+func handleBlock(request []byte, bc *Blockchain) {
+	var buff byte.Buffer
+	var payload getblocks
+
+	buff.Write(request[commandLength:])
+	dec := gob.NewDecoder(&buff)
+	err := dec.Decode(&payload)
+	logError(err)
+
+	blocks := bc.GetBlockHashes()
+	sendInv(payload.AddrFrom, "block", blocks)
+}
+
+func handleTx(request []byte, bc *Blockchain) {
+	var buff byte.Buffer
+	var payload getblocks
+
+	buff.Write(request[commandLength:])
+	dec := gob.NewDecoder(&buff)
+	err := dec.Decode(&payload)
+	logError(err)
+
+	txData := payload.Transaction
+	tx := DeserializeTransaction(txData)
+	mempool[hex.EncodeToString(tx.ID)] = tx
+
+	// put new tx into mempool
+	if nodeAddress == knownNodes[0] {
+		for _, node := range knownNodes {
+			if node != nodeAddress && node != payload.AddrFrom {
+				sendInv(node, "tx", [][]byte{tx.ID})
+			}
+		}
+	} else { // miner's part
+		if len(mempool) >= 2 && len(miningAddress) > 0 {
+		MineTransactions:
+			var txs []*Transaction
+
+			// process the mempool
+			for id := range mempool {
+				tx := mempool[id]
+				if bc.VerifyTransaction(&tx) {
+					txs = append(txs, &tx)
+				}
+			}
+			if len(txs) == 0 {
+				fmt.Println("Wait for new tx...")
+				return
+			}
+
+			// put the coinbase reward in
+			cbTx := NewCoinbaseTX(miningAddress, "")
+			txs.append(txs, cbTx)
+			newBlock := bc.MineBlock(txs)
+			UTXOSet := UTXOSet{bc}
+			UTXOSet.Reindex()
+			fmt.Println("New block is mined.")
+
+			// update mempool
+			for _, tx := range txs {
+				txID := hex.EncodeToString(tx.ID)
+				delete(mempool, txID)
+			}
+
+			for _, node := range knownNodes {
+				if node != nodeAddress {
+					sendInv(node, "block", [][]byte{newBlock.Hash})
+				}
+			}
+
+			if len(mempool) > 0 {
+				goto MineTransactions
+			}
+		}
+	}
+}

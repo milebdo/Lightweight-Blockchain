@@ -3,12 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 )
 
 // CLI for cli
-type CLI struct {}
+type CLI struct{}
 
 // Run - the main function for CLI
 func (cli *CLI) Run() {
@@ -28,7 +27,7 @@ func (cli *CLI) Run() {
 	reindexUTXOCmd := flag.NewFlagSet("reindexutxo", flag.ExitOnError)
 	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	startNodeCmd := flag.NewFlagSet("startnode", flag.ExitOnError)
-	
+
 	getBalanceAddress := getBalanceCmd.String("address", "", "The address to get balance for")
 	createBlockchainAddress := createBlockchainCmd.String("address", "", "The address to send genesis block reward to")
 	sendFrom := sendCmd.String("from", "", "Source wallet address")
@@ -116,7 +115,6 @@ func (cli *CLI) Run() {
 		cli.startNode(nodeID, *startNodeMiner)
 	}
 }
-
 
 // validateArgs to validate the legal Arguments
 func (cli *CLI) validateArgs() {
